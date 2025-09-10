@@ -39,141 +39,81 @@
 #include <unistd.h>
 
 /**********************
- * char_seen_before - Checks if character appeared earlier in output
+ * ft_union - Prints union of two strings without duplicates
  * 
  * Description:
- * This helper function checks if a character has already been
- * printed by looking through both strings up to current positions.
- * This prevents duplicate characters from appearing in the union.
+ * This function uses a simple array to track which characters
+ * have already been printed. The array has 256 positions (one
+ * for each possible ASCII character). When we print a character,
+ * we mark it as printed in the array.
  * 
- * Algorithm:
- * 1. Check first string from start to current position (exclusive)
- * 2. If not found and checking second string, check entire first string
- * 3. Check second string from start to current position (exclusive)
- * 4. Return 1 if character was seen before, 0 otherwise
- * 
- * Parameters:
- * @str1: First string to check
- * @str2: Second string to check
- * @pos1: Current position in first string (-1 if checking second string)
- * @pos2: Current position in second string (-1 if checking first string)
- * @c: Character to check for duplicates
- * 
- * Return:
- * 1 if character appeared earlier, 0 otherwise
- **********************/
-int	char_seen_before(char *str1, char *str2, int pos1, int pos2, char c)
-{
-	int i = 0;							/* Index for iteration */
-	
-	/* Check first string up to current position */
-	while (i < pos1)					/* Only check if pos1 is valid */
-	{
-		if (str1[i] == c)				/* Character found in first string */
-			return (1);					/* Return 1 (already seen) */
-		i++;							/* Move to next character */
-	}
-	
-	/* If checking second string, check entire first string */
-	if (pos1 == -1)						/* We're checking second string */
-	{
-		i = 0;							/* Reset index */
-		while (str1[i])					/* Check entire first string */
-		{
-			if (str1[i] == c)			/* Character found in first string */
-				return (1);				/* Return 1 (already seen) */
-			i++;						/* Move to next character */
-		}
-	}
-	
-	/* Check second string up to current position */
-	i = 0;								/* Reset index */
-	while (i < pos2)					/* Only check if pos2 is valid */
-	{
-		if (str2[i] == c)				/* Character found in second string */
-			return (1);					/* Return 1 (already seen) */
-		i++;							/* Move to next character */
-	}
-	
-	return (0);							/* Character not seen before */
-}
-
-/**********************
- * ft_union - Prints union of characters from two strings
- * 
- * Description:
- * This function creates a union of characters from two strings,
- * printing each unique character only once in the order they
- * first appear across both strings. It processes the first
- * string completely, then the second string.
- * 
- * Algorithm:
- * 1. Process each character in the first string
- * 2. Print character if not seen before in first string
- * 3. Process each character in the second string
- * 4. Print character if not seen before in either string
+ * Simple algorithm:
+ * 1. Create an array to track printed characters (all zeros initially)
+ * 2. Go through first string - print and mark each new character
+ * 3. Go through second string - print and mark each new character
  * 
  * Parameters:
- * @str1: First string for union
- * @str2: Second string for union
+ * @str1: First string
+ * @str2: Second string
  * 
  * Return:
- * void - No return value (output written directly)
- * 
- * Examples:
- * ft_union("abc", "bcd") outputs "abcd"
- * ft_union("hello", "world") outputs "helowrd"
+ * void - No return value
  **********************/
-void	ft_union(char *str1, char *str2)
+void ft_union(char *str1, char *str2)
 {
-	int i = 0;							/* Index for first string */
+	char printed[256] = {0};  /* Array to track which characters were printed */
+	int i;  /* Index for going through strings */
 	
 	/* Process first string */
-	while (str1[i])						/* Iterate through first string */
+	i = 0;  /* Start at beginning of first string */
+	while (str1[i])  /* Go through each character in first string */
 	{
-		if (!char_seen_before(str1, str2, i, -1, str1[i]))	/* Check if not seen */
-			write(1, &str1[i], 1);		/* Write character if unique */
-		i++;							/* Move to next character */
+		/* Check if this character was not printed yet */
+		if (!printed[(unsigned char)str1[i]])  /* Character is new */
+		{
+			write(1, &str1[i], 1);  /* Print the character */
+			printed[(unsigned char)str1[i]] = 1;  /* Mark as printed */
+		}
+		i++;  /* Move to next character */
 	}
 	
 	/* Process second string */
-	i = 0;								/* Reset index for second string */
-	while (str2[i])						/* Iterate through second string */
+	i = 0;  /* Start at beginning of second string */
+	while (str2[i])  /* Go through each character in second string */
 	{
-		if (!char_seen_before(str1, str2, -1, i, str2[i]))	/* Check if not seen */
-			write(1, &str2[i], 1);		/* Write character if unique */
-		i++;							/* Move to next character */
+		/* Check if this character was not printed yet */
+		if (!printed[(unsigned char)str2[i]])  /* Character is new */
+		{
+			write(1, &str2[i], 1);  /* Print the character */
+			printed[(unsigned char)str2[i]] = 1;  /* Mark as printed */
+		}
+		i++;  /* Move to next character */
 	}
 }
 
 /**********************
- * main - Entry point for string union program
+ * main - Entry point for union program
  * 
  * Description:
- * This program takes two strings as command line arguments and
- * displays the union of characters from both strings without
- * duplicates. Characters appear in the order they first occur
- * across both strings. If incorrect number of arguments provided,
- * it only prints a newline.
- * 
- * Usage:
- * ./union "string1" "string2"
+ * Takes two strings as arguments and prints their union
+ * (all unique characters from both strings in order).
+ * If wrong number of arguments, just prints newline.
  * 
  * Parameters:
- * @argc: Number of command line arguments
- * @argv: Array of command line argument strings
+ * @argc: Number of arguments
+ * @argv: Array of argument strings
  * 
  * Return:
- * 0 on successful execution
- * 
- * Examples:
- * ./union "abc" "def" -> outputs "abcdef\n"
- * ./union "hello" "world" -> outputs "helowrd\n"
+ * 0 on success
  **********************/
 int main(int argc, char **argv)
 {
-	if (argc == 3)						/* Check if exactly two arguments provided */
-		ft_union(argv[1], argv[2]);		/* Call function to create union */
-	write(1, "\n", 1);					/* Always write newline at end */
-	return (0);							/* Return success */
+	/* Check if we have exactly 2 arguments (plus program name = 3 total) */
+	if (argc == 3)  /* Correct number of arguments */
+	{
+		ft_union(argv[1], argv[2]);  /* Print union of the two strings */
+	}
+	
+	write(1, "\n", 1);  /* Always print newline at the end */
+	return (0);  /* Return success */
 }
