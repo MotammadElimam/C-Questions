@@ -49,7 +49,7 @@
  **********************/
 char	*ft_strrev(char *str)
 {
-	int len;							/* Length of the string */
+	int i = 0;							/* Length of the string */
 	int start = 0;						/* Start index (left pointer) */
 	int end;							/* End index (right pointer) */
 	char temp;							/* Temporary variable for swapping */
@@ -57,11 +57,11 @@ char	*ft_strrev(char *str)
 	if (!str)							/* Handle null pointer case */
 		return (NULL);					/* Return NULL for safety */
 	
-	len = 0;							/* Initialize length counter */
-	while (str[len])					/* Find the length of the string */
-		len++;							/* Increment length counter */
+							/* Initialize length counter */
+	while (str[i])					/* Find the length of the string */
+		i++;							/* Increment length counter */
 	
-	end = len - 1;						/* Set end pointer to last character */
+	end = i - 1;						/* Set end pointer to last character */
 	
 	while (start < end)					/* Swap characters from both ends */
 	{
